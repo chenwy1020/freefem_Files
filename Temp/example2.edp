@@ -1,0 +1,27 @@
+/*
+int C1=1;
+border Circle(t=0., 2*pi){x=0.5*cos(t); y=0.5*sin(t); label=C1;}
+mesh Th=buildmesh(Circle(100));
+plot(Th);
+
+border ellip(t=0., 2.*pi){x=1.*cos(t); y=0.7*sin(t); label=C1;}
+mesh Th1=buildmesh(ellip(100));
+plot(Th1);
+
+mesh Th2;
+Th2=buildmesh(ellip(1100)+Circle(-100));
+plot(Th2);
+*/
+
+int NT=50;
+int C1=1, C2=2, C3=3, C4=4, C5=1;
+border Ra1(t=0., 1.){x=1.; y=t; label=C1;}
+border Ra2(t=0., 1.){x=t; y=1.; label=C2;}
+border Ra3(t=0., 1.){x=0.; y=t; label=C3;}
+border Ra4(t=0., 1.){x=t; y=0.; label=C4;}
+border Circle(t=0., 2.*pi){x=0.3*cos(t)+0.5; y=0.3*sin(t)+0.5; label=C5;}
+
+mesh Th;
+Th=buildmesh(Ra1(NT)+Ra2(-NT)+Ra3(-NT)+Ra4(NT)+Circle(-NT));
+
+plot(Th);

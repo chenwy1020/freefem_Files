@@ -1,0 +1,81 @@
+//周期光栅问题
+verbosity=0;
+
+//入射波
+real kappa=1, theta=pi/3;
+func complex uinc(real x, real y) {
+	return exp(1i*kappa*(x*sin (theta)-y*cos (theta))) ; 
+}
+
+//生成网格
+int meshN=30;
+int Bottom=1, Left=2, Right=3, Top=4; 
+func real SurfceF (real x) {return sin(x);}
+real xmin=0., xmax=2.*pi, ymax=2., Lambda=xmax- xmin;
+border C1(t=0, 1) {x=xmin+t*(xmax-xmin); y=SurfceF(2*pi*t) ; label=Bottom;}
+border C2(t=0, 1) {x=xmax; y=t*ymax; label=Right; }
+border C3(t=0, 1) {x=xmin+t*(xmax-xmin); y=ymax; label=Top; }
+border C4(t=0, 1) {x=xmin; y=t*ymax; label=Left;}
+mesh Tht=buildmesh(C1(8*meshN) +C2(2 *meshN) +C3(-6*meshN) +C4(-2*meshN));
+plot(Tht);
+
+
+//生成有限元空间：周期结构
+fespace Acoustic(Tht, P1, periodic=[[Left,y],[Right,y]]);
+Acoustic<complex> u, v;
+
+//给出变分问题：基于总场
+real alpha=kappa*sin(theta), beta=kappa*cos(theta);
+varf Helmholtz(u, v)=int2d(Tht)(dx(u)*dx(v)+dy(u)*dy(v)-2*1i*alpha*dx(u)*v-(kappa^2-alpha^2)*u*v)
+	+int1d(Tht, Top)(-2.*1i*beta*exp(-1i*beta*ymax)*v)
+	+on(Bottom, u=0.);
+matrix<complex> A=Helmholtz(Acoustic,Acoustic);
+complex[int] b=Helmholtz(0, Acoustic);
+
+//DtN 矩阵
+//生成矩阵 U S
+int VhN=u[].n;
+int FourierN=10;
+complex[int, int] U(VhN, 2*FourierN+1), V(2*FourierN+1, VhN);
+complex[int] S(2*FourierN+1);
+
+for(int m=-FourierN; m<FourierN; m++){
+	real alpham=2.*pi*m/Lambda;
+	complex betam, temp;
+	temp=kappa^2-(alpha+alpham)^2;
+	if(temp>0){betam=sqrt(temp);}
+	else{betam=1i*sqrt(-temp);}
+	
+	//矩阵S
+	S(m+FourierN)=Lambda*1i*betam;
+
+	//矩阵U
+	varf FourierTrans(void, v)=int1d(Tht, Top)(v*exp(-1i*alpham*x)/Lambda);
+	complex[int] Base=FourierTrans(0, Acoustic);
+
+	for(int i=0; i<VhN; i++){
+		U(i, m+FourierN)=conj(Base(i));
+		V(m+FourierN, i)=-S(m+FourierN)*Base(i);
+	}		
+}
+
+matrix<complex> Tmatrix, Umatrix, Vmatrix;
+Umatrix=U;
+Vmatrix=V;
+Tmatrix=Umatrix*Vmatrix;
+
+//求解系数矩阵
+A=A+Tmatrix;
+set(A, solver=UMFPACK);
+u[]=A^-1*b;
+plot(u, value=1);
+
+
+//拟周期变换
+fespace QuasiSpace(Tht, P1);
+QuasiSpace<complex> qu;
+qu=u*exp(1i*alpha*x);
+
+cout<<qu(0.5, 1.5)<<endl;
+plot(qu, value=1);
+

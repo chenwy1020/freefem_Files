@@ -1,0 +1,34 @@
+You chose the file "D:\huipu\Documents\GitHub\freefem_Files\参考程序及作业\example2.edp"
+-- FreeFem++ v4.13 (Sat Jul  8 11:10:05 CEST 2023 - git v4.13)
+   file : D:\huipu\Documents\GitHub\freefem_Files\参考程序及作业\example2.edp
+ Load: lg_fem lg_mesh lg_mesh3 eigenvalue
+    1 : /*
+    2 : int C1=1;
+    3 : border Circle(t=0., 2*pi){x=0.5*cos(t); y=0.5*sin(t); label=C1;}
+    4 : mesh Th=buildmesh(Circle(100));
+    5 : plot(Th);
+    6 :
+    7 : border ellip(t=0., 2.*pi){x=1.*cos(t); y=0.7*sin(t); label=C1;}
+    8 : mesh Th1=buildmesh(ellip(100));
+    9 : plot(Th1);
+   10 :
+   11 : mesh Th2;
+   12 : Th2=buildmesh(ellip(1100)+Circle(-100));
+   13 : plot(Th2);
+   14 : */
+   15 :
+   16 : int C1=1, C2=2, C3=3, C4=4;
+   17 : border Ra1(t=0., 1.){x=1.; y=t; label=C1;}
+   18 : border Ra2(t=0., 1.){x=t; y=1.; label=C2;}
+   19 : border Ra3(t=0., 1.){x=0.; y=t; label=C3;}
+   20 : border Ra4(t=0., 1.){x=t; y=0.; label=C4;}
+   21 : mesh Th;
+   22 : Th=buildmesh(Ra1(10)+Ra2(-10)+Ra3(-10)+Ra4(10));
+   23 : plot(Th); sizestack + 1024 =1352  ( 328 )
+ 
+  --  mesh:  Nb of Triangles =    242, Nb of Vertices 142
+times: compile 0.046s, execution 0.003s,  mpirank:0
+ ######## We forget of deleting   18 Nb pointer,   0Bytes  ,  mpirank 0, memory leak =0
+ CodeAlloc : nb ptr  3830,  size :511608 mpirank: 0
+Ok: Normal End
+ try getConsole D:\huipu\Documents\GitHub\freefem_Files\参考程序及作业\example2.edp

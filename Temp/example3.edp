@@ -1,0 +1,64 @@
+int NT=10;
+int C1=1, C2=2, C3=3, C4=4;
+border Ra1(t=0., 1.){x=1.; y=t; label=C1;}
+border Ra2(t=0., 1.){x=t; y=1.; label=C2;}
+border Ra3(t=0., 1.){x=0.; y=t; label=C3;}
+border Ra4(t=0., 1.){x=t; y=0.; label=C4;}
+mesh Th;
+Th=buildmesh(Ra1(NT)+Ra2(-NT)+Ra3(-NT)+Ra4(NT));
+//plot(Th);
+
+fespace Vht(Th, P2);
+Vht u, v, w;
+
+func real Func1(real x, real y){
+	return 2.*pi^2*x*y;
+}
+
+func real Func2(real x, real y){
+	return y-pi*sin(pi*y);
+}
+
+func real Func3(real x, real y){
+	return x-pi*sin(pi*x);
+}
+
+solve dpt(u, v)=int2d(Th)(-dx(u)*dx(v)-dy(u)*dy(v)+2.*pi^2*u*v)
+				-int2d(Th)(Func1(x, y)*v)
+				+int1d(Th, C1)(Func2(x, y)*v)
+                +int1d(Th, C2)(Func3(x, y)*v)
+				+on(C3, u=0.)+on(C4, u=0.);
+plot(u);
+
+
+func real ExacU(real x, real y){
+	return x*y+sin(pi*x)*sin(pi*y);
+}
+v=ExacU(x, y);
+
+
+w=u-v;
+plot(w);
+
+real errL2;
+errL2=sqrt(int2d(Th)(w*w));
+cout<<"Err in L2 norm: "<<errL2<<endl;
+
+// Err in H1 norm
+func real DxExacU(real x, real y){
+	return y+pi*cos(pi*x)*sin(pi*y);
+}
+
+func real DyExacU(real x, real y){
+	return x+pi*cos(pi*y)*sin(pi*x);
+}
+
+Vht dxv, dyv;
+dxv=DxExacU(x, y);
+dyv=DyExacU(x, y);
+
+real errH1;
+errH1=sqrt(int2d(Th)(w*w)
+	+int2d(Th)((dx(u)-dxv)^2+(dy(u)-dyv)^2));
+cout<<"Err in H1 norm: "<<errH1<<endl;
+cout<<"Err in L2 norm: "<<errL2<<endl;

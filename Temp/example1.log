@@ -1,0 +1,51 @@
+You chose the file "D:\huipu\Documents\GitHub\freefem_Files\参考程序及作业\example1.edp"
+-- FreeFem++ v4.6 (Fri, Apr 03, 2020  2:08:08 PM - git v4.6)
+ Load: lg_fem lg_mesh lg_mesh3 eigenvalue
+    1 : int a;   int[int] a1(10);
+    2 : real b;  real[int] b1(5);
+    3 : complex c; complex[int] c1(2);
+    4 :
+    5 : a=1;
+    6 : cout<<a<<endl;
+    7 :
+    8 : b=1.;
+    9 : cout<<b<<endl;
+   10 :
+   11 : c=1.+1i;
+   12 : cout<<c<<endl;
+   13 :
+   14 : for(int i=0; i<10; i++){
+   15 :         a1(i)=2*i;
+   16 : }
+   17 : cout<<"a1=: "<<a1<<endl;
+   18 :
+   19 : // border
+   20 :
+   21 : func real Func1(int a, real b){
+   22 :         real temp;
+   23 :         temp=a*b;
+   24 :
+   25 :         return temp;
+   26 : }
+   27 :
+   28 : real a2;
+   29 : a2=Func1(a, b);
+   30 : cout<<a<<", "<<b<<", "<<a2<<endl;
+   31 :
+   32 : real a3;
+   33 : a3=Func1(2, 0.33);
+   34 : cout<<a3<<endl; sizestack + 1024 =1216  ( 192 )
+ 
+1
+1
+(1,1)
+a1=: 10
+          0       2       4       6       8
+         10      12      14      16      18
+ 
+1, 1, 1
+0.66
+times: compile 0.078s, execution 0.013s,  mpirank:0
+ CodeAlloc : nb ptr  3511,  size :469400 mpirank: 0
+Ok: Normal End
+ try getConsole D:\huipu\Documents\GitHub\freefem_Files\参考程序及作业\example1.edp

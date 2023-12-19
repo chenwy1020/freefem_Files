@@ -1,0 +1,104 @@
+You chose the file "D:\huipu\Documents\GitHub\freefem_Files\参考程序及作业\example3.edp"
+-- FreeFem++ v4.13 (Sat Jul  8 11:10:05 CEST 2023 - git v4.13)
+   file : D:\huipu\Documents\GitHub\freefem_Files\参考程序及作业\example3.edp
+ Load: lg_fem lg_mesh lg_mesh3 eigenvalue
+    1 : int NT=10;
+    2 : int C1=1, C2=2, C3=3, C4=4;
+    3 : border Ra1(t=0., 1.){x=1.; y=t; label=C1;}
+    4 : border Ra2(t=0., 1.){x=t; y=1.; label=C2;}
+    5 : border Ra3(t=0., 1.){x=0.; y=t; label=C3;}
+    6 : border Ra4(t=0., 1.){x=t; y=0.; label=C4;}
+    7 : mesh Th;
+    8 : Th=buildmesh(Ra1(NT)+Ra2(-NT)+Ra3(-NT)+Ra4(NT));
+    9 : //plot(Th);
+   10 :
+   11 : fespace Vht(Th, P2);
+   12 : Vht u, v, w;
+   13 :
+   14 : func real Func1(real x, real y)
+ *** Warning  The identifier x hide a Global identifier
+ 
+ *** Warning  The identifier y hide a Global identifier
+{
+   15 :         return 2.*pi^2*x*y;
+   16 : }
+   17 :
+   18 : func real Func2(real x, real y)
+ *** Warning  The identifier x hide a Global identifier
+ 
+ *** Warning  The identifier y hide a Global identifier
+{
+   19 :         return y-pi*sin(pi*y);
+   20 : }
+   21 :
+   22 : func real Func3(real x, real y)
+ *** Warning  The identifier x hide a Global identifier
+ 
+ *** Warning  The identifier y hide a Global identifier
+{
+   23 :         return x-pi*sin(pi*x);
+   24 : }
+   25 :
+   26 : solve dpt(u, v)=int2d(Th)(-dx(u)*dx(v)-dy(u)*dy(v)+2.*pi^2*u*v)
+   27 :                                 -int2d(Th)(Func1(x, y)*v)
+   28 :                                 +int1d(Th, C1)(Func2(x, y)*v)
+   29 :                 +int1d(Th, C2)(Func3(x, y)*v)
+   30 :                                 +on(C3, u=0.)+on(C4, u=0.);
+   31 : plot(u);
+   32 :
+   33 :
+   34 : func real ExacU(real x, real y)
+ *** Warning  The identifier x hide a Global identifier
+ 
+ *** Warning  The identifier y hide a Global identifier
+{
+   35 :         return x*y+sin(pi*x)*sin(pi*y);
+   36 : }
+   37 : v=ExacU(x, y);
+   38 :
+   39 :
+   40 : w=u-v;
+   41 : plot(w);
+   42 :
+   43 : real errL2;
+   44 : errL2=sqrt(int2d(Th)(w*w));
+   45 : cout<<"Err in L2 norm: "<<errL2<<endl;
+   46 :
+   47 : // Err in H1 norm
+   48 : func real DxExacU(real x, real y)
+ *** Warning  The identifier x hide a Global identifier
+ 
+ *** Warning  The identifier y hide a Global identifier
+{
+   49 :         return y+pi*cos(pi*x)*sin(pi*y);
+   50 : }
+   51 :
+   52 : func real DyExacU(real x, real y)
+ *** Warning  The identifier x hide a Global identifier
+ 
+ *** Warning  The identifier y hide a Global identifier
+{
+   53 :         return x+pi*cos(pi*y)*sin(pi*x);
+   54 : }
+   55 :
+   56 : Vht dxv, dyv;
+   57 : dxv=DxExacU(x, y);
+   58 : dyv=DyExacU(x, y);
+   59 :
+   60 : real errH1;
+   61 : errH1=sqrt(int2d(Th)(w*w)
+   62 :         +int2d(Th)((dx(u)-dxv)^2+(dy(u)-dyv)^2));
+   63 : cout<<"Err in H1 norm: "<<errH1<<endl;
+   64 : cout<<"Err in L2 norm: "<<errL2<<endl; sizestack + 1024 =3016  ( 1992 )
+ 
+  --  mesh:  Nb of Triangles =    242, Nb of Vertices 142
+  -- Solve :
+          min -2.43932e-31  max 1.27785
+Err in L2 norm: 7.22345e-05
+Err in H1 norm: 0.0134438
+Err in L2 norm: 7.22345e-05
+times: compile 0.136s, execution 0.145s,  mpirank:0
+ ######## We forget of deleting   24677 Nb pointer,   0Bytes  ,  mpirank 0, memory leak =0
+ CodeAlloc : nb ptr  4109,  size :527064 mpirank: 0
+Ok: Normal End
+ try getConsole D:\huipu\Documents\GitHub\freefem_Files\参考程序及作业\example3.edp

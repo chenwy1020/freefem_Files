@@ -1,0 +1,86 @@
+//障碍光栅问题
+verbosity=0;
+
+//入射波
+real kappa=pi, theta=pi/2;
+func complex uinc(real x, real y){
+	return exp(1i*kappa*(x*sin(theta)-y*cos(theta)));
+}
+
+//生成网格
+int meshN=30;
+int PMLh=0.5;
+int Bottom=1,Left=2,Right=3,Top=4,Inner=5;
+func real SurfceF(real x){return 0.5*sin(2.*pi*x);}
+real xmin=0, xmax=1., ymax=1., Lambda=xmax-xmin, ypml=ymax+PMLh;
+//物理区域
+border C1(t=0, 1){x=xmin+t*(xmax-xmin); y=SurfceF(t); label=Bottom;}
+border C2(t=0, 1){x=xmax; y=t*ymax; label=Right;}
+border C3(t=0, 1){x=xmin+t*(xmax-xmin); y=ymax; label=Inner;}
+border C4(t=0, 1){x=xmin; y=t*ymax; label=Left;}
+mesh Tht1=buildmesh(C1(6*meshN) +C2(2*meshN) +C3(-2*meshN) +C4(-2*meshN));
+//plot(Tht1);
+
+//PML层
+border CPML1(t=0, 1){x=xmax; y=t*PMLh+ymax; label=Right;}
+border CPML2(t=0, 1){x=xmin; y=t*PMLh+ymax; label=Left;}
+border CPML3(t=0, 1){x=xmin+t*(xmax-xmin); y=ymax+PMLh; label=Top;}
+mesh Tht2=buildmesh(C3(2*meshN)+CPML1(meshN)+CPML2(-meshN)+CPML3(-meshN));
+plot(Tht2);
+
+//求解区域
+mesh Tht=Tht1+Tht2;
+plot(Tht);
+
+//PML 参数
+real sigma0=20.;
+int PMLm=2;
+
+func complex sy(real y){
+	complex temp=1;
+	if(y>ymax){
+		temp=1.+1i*sigma0*(y-ymax)^PMLm/PMLh^PMLm;
+	}
+	return temp;
+}
+
+// 生成有限元空间：周期结构
+fespace Acoustic(Tht, P1, periodic=[[Left,y],[Right,y]]);
+Acoustic<complex> u, v;
+
+
+//给出变分问题：基于散射场
+real alpha=kappa*sin(theta), beta=kappa*cos(theta);
+solve Helmhotz(u, v)=int2d(Tht)(sy(y)*dx(u)*dx(v)+dy(u)*dy(v)/sy(y)
+	-2*1i*alpha*dx(u)*v*sy(y)-(kappa^2-alpha^2)*sy(y)*u*v)
+	+on(Bottom, u=-quinc(x,y))+on(Top, u=0);
+//plot(u,vale=1);
+
+Acoustic<complex> utot;
+utot=u+quinc(x,y);
+//plot(utot,vale=1);
+
+//物理区域解
+fespace PhysicalField(Tht1, P1, periodic=[[Left,y],[Right,y]]);
+PhysicalField<complex> u1;
+u1-utot;
+//plot(u1, value=1);
+
+//拟周期变换
+fespace QuasiSpace(Tht1, P1);
+QuasiSpace<complex> qu;
+qu=u1*exp(1i*alpha*x);
+
+cout<<u(0, 0.7)<<", "<<u(0.5, 0.7)<<", "<<u(1, 0.7)<<endl;
+cout<<qu(0, 0.7)<<", "<<qu(0.5, 0.7)<<", "<<qu(1, 0.7)<<endl;
+
+
+
+
+
+
+
+
+
+
+
